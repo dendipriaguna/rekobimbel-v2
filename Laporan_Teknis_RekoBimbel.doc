@@ -1,0 +1,94 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Laporan Teknis</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; }
+h1 { font-size: 18pt; }
+h2 { font-size: 14pt; margin-top: 12pt; }
+h3 { font-size: 12pt; font-weight: bold; margin-top: 10pt; }
+ul, ol { margin-bottom: 10pt; }
+li { margin-bottom: 4pt; }
+code { font-family: monospace; background-color: #f4f4f4; padding: 2px 4px; }
+</style>
+</head>
+<body>
+<h1>Laporan &amp; Penjelasan Teknis RekoBimbel</h1>
+<p>Dokumen ini disusun sebagai panduan teknis (<em>Technical Documentation</em>) mengenai arsitektur, basis data, dan aliran logika sistem pada aplikasi <strong>RekoBimbel</strong>. Dokumen ini dapat digunakan sebagai referensi untuk penyusunan laporan, presentasi, maupun sidang.</p>
+<hr />
+<h2>1. Spesifikasi Teknologi (Tech Stack)</h2>
+<p>Sistem dibangun dengan pendekatan <em>Mobile-First Design</em> menggunakan ekosistem pengembangan modern:</p>
+<ul>
+<li><strong>Backend:</strong> PHP (Laravel Framework versi 11/12). Menangani routing, ORM Database, autentikasi, serta integrasi API.</li>
+<li><strong>Frontend Engine:</strong> Laravel Blade Templates.</li>
+<li><strong>Styling:</strong> Tailwind CSS 4.</li>
+<li><strong>UI Template Basis:</strong> TailAdmin Starter Kit (memberikan struktur layout HTML/Tailwind siap pakai).</li>
+<li><strong>Interaktivitas (<em>Lightweight JS</em>):</strong> Alpine.js. Digunakan untuk logika sisi klien yang ringan, seperti kalkulasi otomatis penambahan waktu 1 jam saat booking jadwal dan sistem <em>toggle dropdown</em> UI, tanpa perlu <em>framework library</em> Javascript yang berat seperti React/Vue.</li>
+<li><strong>Database:</strong> MySQL relational database.</li>
+<li><strong>Third-Party API:</strong> <a href="https://fonnte.com/">Fonnte API</a> (Penyedia <em>Gateway</em> WhatsApp) untuk sistem notifikasi dan pengiriman kode OTP.</li>
+</ul>
+<hr />
+<h2>2. Struktur Database Utama (Tabel)</h2>
+<p>Database dirancang berbasis relasional (RDBMS) menggunakan Eloquent ORM Laravel.</p>
+<ol>
+<li><strong>Tabel <code>users</code></strong>
+   Menyimpan data otentikasi utama dan profil umum semua pengguna (Admin, Guru, Siswa).</li>
+<li>Kolom kunci: <code>phone</code> (sebagai pengganti email untuk identifier login), <code>password</code>, <code>role</code>.</li>
+<li>Kolom keamanan: <code>phone_verified</code> (Boolean), <code>otp_code</code>, <code>otp_expires_at</code>, <code>two_factor_enabled</code> (Penanda aktifnya 2FA).</li>
+<li>
+<p>Kolom media: <code>photo</code> (Menyimpan <em>path</em> gambar profil, disimpan pada <code>storage/app/public/photos</code>).</p>
+</li>
+<li>
+<p><strong>Tabel <code>teacher_profiles</code></strong>
+   Menyimpan data spesifik rekam jejak guru. Merupakan tabel perluasan dari <em>Users</em> (Relasi <em>One-to-One</em>).</p>
+</li>
+<li>
+<p>Kolom kunci: <code>subject</code> (Mata Pelajaran), <code>jenjang</code>, <code>price</code> (Tarif), <code>availability</code>, <code>experience</code>, <code>status</code> (pending/approved oleh admin).</p>
+</li>
+<li>
+<p><strong>Tabel <code>student_preferences</code></strong>
+   Menyimpan konfigurasi filter dan preferensi pencarian siswa yang digunakan sebagai bahan bakar <em>Scoring Engine</em>.</p>
+</li>
+<li>
+<p>Kolom: <code>subject</code>, <code>jenjang</code>, <code>max_price</code>, <code>gender</code>, <code>availability</code>.</p>
+</li>
+<li>
+<p><strong>Tabel <code>schedules</code></strong>
+   Menangani data transaksi <em>booking</em> jadwal belajar antara Siswa dan Guru.</p>
+</li>
+<li>
+<p>Kolom: <code>user_id</code> (Siswa), <code>teacher_profile_id</code>, <code>tanggal</code>, <code>jam_mulai</code>, <code>jam_selesai</code>, <code>status</code> (<code>pending</code>, <code>confirmed</code>, <code>selesai</code>, <code>batal</code>).</p>
+</li>
+<li>
+<p><strong>Tabel <code>reviews</code></strong>
+   Menyimpan <em>rating</em> dan komentar yang diberikan oleh siswa kepada guru.</p>
+</li>
+<li>Kolom: <code>rating</code> (1-5), <code>comment</code>.</li>
+</ol>
+<hr />
+<h2>3. Logika &amp; Alur Fungsionalitas Inti</h2>
+<p>Berikut adalah penjelasan teknis untuk fitur-fitur krusial yang ada dalam aplikasi:</p>
+<h3>A. Otentikasi, WA OTP &amp; Keamanan (2-Step Verification)</h3>
+<ul>
+<li><strong>Login Custom:</strong> Sistem menggunakan nomor WhatsApp (<code>phone</code>) sebagai <em>credential</em> login.</li>
+<li><strong>Middleware <code>EnsurePhoneVerified</code>:</strong> Berfungsi sebagai gerbang pengaman. Jika modul mendeteksi status <code>phone_verified == false</code>, pengguna akan tertahan dan distel paksa (di-<em>redirect</em>) masuk ke laman <code>/verify-otp</code>.</li>
+<li><strong>Integrasi Fonnte:</strong> Saat pengguna baru daftar atau sistem membangkitkan kode 6 digit OTP acak, <code>FonnteService.php</code> akan mengirim HTTP POST <em>Request</em> ke <em>Endpoint</em> API Fonnte untuk meneruskan pesan tersebut ke nomor WA pengguna secara instan.</li>
+<li><strong>Logika 2FA:</strong> Ketika pengguna (misal: Guru) mengaktifkan 2FA, <em>Controller</em> Login hanya membalik nilai <code>phone_verified</code> menjadi <code>false</code> (sesaat setelah validasi password benar). Ini adalah trik efisien di mana sistem akan otomatis memanfaatkan jaring <em>Middleware</em> OTP yang ada, tanpa perlu memprogram kerangka pengamanan 2FA tambahan dari nol.</li>
+</ul>
+<h3>B. Algoritma Scoring Engine (Hybrid Recommendation)</h3>
+<p>Aplikasi tidak sekadar menampilkan daftar guru secara statis, melainkan menerapkan sistem <strong>Sistem Cerdas Perekam Nilai (<em>Scoring System</em>)</strong> dengan dua pendekatan beririsan:
+1. <strong>Content-Based Filtering:</strong>
+   - <strong>Mata Pelajaran:</strong> Poin +40 jika <em>string</em> <code>subject</code> siswa &amp; guru cocok (<em>fuzzy search menggunakan str_contains</em>).
+   - <strong>Jenjang Pendidikan:</strong> Poin +25 jika jenjang persis tervalidasi cocok.
+   - <strong>Algoritme Harga Spesifik:</strong> Jika tarif guru di bawah anggaran (<em>budget</em>) siswa, sistem otomatis menginjeksi skor absolut +20. Sistem dilengkapi <strong>formula tambahan (proporsional)</strong> yang akan memberi ekstra <em>boost</em> hingga +10 poin, divalidasi dari seberapa murah selisih harga guru dengan batas harga maksimal siswa. <em>Formula: <code>((max_price - tarif) / max_price) * 10</code></em>.
+2. <strong>Rule-Based Matching:</strong>
+   - <strong>Kecocokan Gender:</strong> +10 Poin.
+   - <strong>Ketersediaan Hari (Availability):</strong> +15 Poin.
+   - <strong>Poin Kombo:</strong> +20 ekstra <strong>poin tambahan</strong> mutlak jika <em>Subject</em> dan <em>Jenjang</em> siswa vs guru cocok <strong>secara presisi bersamaan</strong>.
+   - <strong>Poin Pengalaman:</strong> +2 Poin dikali tahun pengalaman (maksimum dibatasi pada +10).</p>
+<p>Hasil dari semua kalkulasi poin masing-masing guru akan diagregasi (<em>Sum</em>) dan dirender berdasarkan <em>Order Descending</em> (Skor tertinggi akan bertengger di daftar visual posisi teratas/direkomendasikan).</p>
+<h3>C. Alur Scheduling (Penjadwalan) &amp; Review</h3>
+<ul>
+<li><strong>Otomasi Waktu:</strong> Saat siswa melakukan form input, <em>Frontend script (Alpine.js)</em> akan menganalisa parameter <code>jam_mulai</code> dan menerapkan <em>String Manipulation</em> (<code>(Jam+1)%24</code>) untuk melakukan auto-fill variabel <code>jam_selesai</code> guna meminimalisir kesalahan pemesanan jam mundur.</li>
+<li><strong>Proteksi Pengulasan Ganda:</strong> Endpoint penyimpanan (<code>ReviewController.php</code>) melakukan validasi ganda pada basis data (<em>Database constraint</em>). Sistem secara sekuensial menelusuri apakah antara sesi Siswa dan entitas Guru setidaknya memiliki satu <em>Record</em> di tabel <code>schedules</code> dengan string status bernilai <code>"selesai"</code>. Jika kriteria ini tak dipenuhi, <em>Exception Protocol / Access Denied</em> dilontarkan.</li>
+</ul>
+</body>
+</html>
