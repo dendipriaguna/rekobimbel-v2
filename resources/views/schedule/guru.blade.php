@@ -22,6 +22,7 @@
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Siswa</th>
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Jam</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kecamatan</th>
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</th>
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
                         <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
@@ -33,6 +34,7 @@
                             <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $jadwal->user->name }}</td>
                             <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->tanggal }}</td>
                             <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->jam_mulai }} - {{ $jadwal->jam_selesai }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->user->studentPreference->location ?? '-' }}</td>
                             <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->catatan ?? '-' }}</td>
                             <td class="px-5 py-4">
                                 @if($jadwal->status === 'confirmed')
@@ -69,7 +71,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada jadwal masuk.</td>
+                            <td colspan="7" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada jadwal masuk.</td>
                         </tr>
                     @endforelse
                 </tbody>
