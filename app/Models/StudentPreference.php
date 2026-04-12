@@ -13,6 +13,7 @@ class StudentPreference extends Model
         'max_price',
         'gender',
         'availability',
+        'location',
     ];
 
     public function user()
