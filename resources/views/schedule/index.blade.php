@@ -141,4 +141,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleReview(id) {
+        let form = document.getElementById('review-' + id);
+
+        if (form) {
+            form.classList.toggle('hidden');
+        } else {
+            console.log('Form review tidak ditemukan');
+        }
+    }
+</script>
 @endsection
