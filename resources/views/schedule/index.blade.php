@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('content')
@@ -20,230 +19,121 @@
 
     <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-            <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
-                Jadwal Belajar Kamu
-            </h3>
+            <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Jadwal Belajar Kamu</h3>
         </div>
-
         <div class="max-w-full overflow-x-auto">
-            <table class="w-full min-w-[900px]">
+            <table class="w-full min-w-[800px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Guru
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Tanggal
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Jam
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Catatan
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Status
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Pembayaran
-                        </th>
-                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                            Aksi
-                        </th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Guru</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Jam</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Pembayaran</th>
+                        <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @forelse($schedules as $jadwal)
-
-                        @php
-                            $teacherId = $jadwal->teacherProfile->id;
-
-                            // cek apakah siswa sudah pernah review guru ini
-                            $sudahReview = \App\Models\Review::where('student_id', auth()->id())
-                                ->where('teacher_profile_id', $teacherId)
-                                ->exists();
-                        @endphp
-
                         <tr class="border-b border-gray-100 dark:border-gray-800">
-                            {{-- Guru --}}
-                            <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                {{ $jadwal->teacherProfile->user->name }}
-                            </td>
-
-                            {{-- Tanggal --}}
-                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $jadwal->tanggal }}
-                            </td>
-
-                            {{-- Jam --}}
-                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $jadwal->jam_mulai }} - {{ $jadwal->jam_selesai }}
-                            </td>
-
-                            {{-- Catatan --}}
-                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $jadwal->catatan ?? '-' }}
-                            </td>
-
-                            {{-- Status --}}
+                            <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $jadwal->teacherProfile->user->name }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->tanggal }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->jam_mulai }} - {{ $jadwal->jam_selesai }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $jadwal->catatan ?? '-' }}</td>
                             <td class="px-5 py-4">
                                 @if($jadwal->status === 'confirmed')
-                                    <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                        Confirmed
-                                    </span>
-
+                                    <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">Confirmed</span>
                                 @elseif($jadwal->status === 'pending')
-                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-                                        Pending
-                                    </span>
-
+                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">Pending</span>
                                 @elseif($jadwal->status === 'selesai')
-                                    <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                                        Selesai
-                                    </span>
-
+                                    <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Selesai</span>
                                 @else
-                                    <span class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                        Batal
-                                    </span>
+                                    <span class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">Batal</span>
                                 @endif
                             </td>
-
-                            {{-- Payment --}}
                             <td class="px-5 py-4">
                                 @if($jadwal->payment_status === 'paid')
-                                    <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                        Lunas
-                                    </span>
-
+                                    <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">Lunas</span>
                                 @elseif($jadwal->payment_status === 'unpaid')
-                                    <span class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                        Belum Bayar
-                                    </span>
-
+                                    <span class="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">Belum Bayar</span>
                                 @else
-                                    <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">
-                                        Gagal
-                                    </span>
+                                    <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">Gagal</span>
                                 @endif
                             </td>
-
-                            {{-- Aksi --}}
                             <td class="px-5 py-4">
-                                <div class="flex flex-col gap-2">
-
-                                    {{-- jika sudah bayar --}}
+                                <div class="flex gap-3 items-center">
                                     @if($jadwal->payment_status === 'paid')
-                                        <a
-                                            href="{{ route('schedule.invoice', $jadwal->id) }}"
-                                            target="_blank"
-                                            class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1 rounded-md w-fit"
-                                        >
-                                            Cetak Bukti Pembayaran
-                                        </a>
+                                        <a href="{{ route('schedule.invoice', $jadwal->id) }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1 rounded-md">Cetak Bukti Pembayaran</a>
+                                    @elseif($jadwal->payment_status === 'unpaid' && ($jadwal->status === 'pending' || $jadwal->status === 'confirmed'))
+                                        <a href="{{ route('payment.pay', $jadwal->id) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors bg-brand-50 px-3 py-1 rounded-md">Bayar</a>
                                     @endif
 
-                                    {{-- jika belum bayar --}}
-                                    @if($jadwal->payment_status === 'unpaid' && ($jadwal->status === 'pending' || $jadwal->status === 'confirmed'))
-                                        <a
-                                            href="{{ route('payment.pay', $jadwal->id) }}"
-                                            class="text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors bg-brand-50 px-3 py-1 rounded-md w-fit"
-                                        >
-                                            Bayar
-                                        </a>
-                                    @endif
+                                  @if($jadwal->status === 'pending' || $jadwal->status === 'confirmed')
+                        <form action="{{ route('jadwal.cancel', $jadwal->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="text-sm text-red-500 hover:underline">
+                                Batalkan
+                            </button>
+                        </form>
 
-                                    {{-- tombol batal jika pending / confirmed --}}
-                                    @if($jadwal->status === 'pending' || $jadwal->status === 'confirmed')
-                                        <form
-                                            action="{{ route('jadwal.cancel', $jadwal->id) }}"
-                                            method="POST"
-                                        >
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="text-sm text-red-500 hover:underline"
-                                            >
-                                                Batalkan
-                                            </button>
-                                        </form>
-                                    @endif
+                    @elseif($jadwal->status === 'selesai')
+                        <button
+                            type="button"
+                            onclick="toggleReview({{ $jadwal->id }})"
+                            class="text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 px-3 py-1 rounded-md"
+                        >
+                            Tulis Review
+                        </button>
 
-                                    {{-- jika jadwal selesai dan belum review -> tampil form review --}}
-                                    @if($jadwal->status === 'selesai' && !$sudahReview)
+                        <div id="review-{{ $jadwal->id }}" class="hidden mt-3 border rounded-lg p-3 bg-gray-50">
+                            <form action="{{ route('review.store') }}" method="POST">
+                                @csrf
 
-                                        <button
-                                            type="button"
-                                            onclick="toggleReview({{ $jadwal->id }})"
-                                            class="text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 px-3 py-1 rounded-md w-fit"
-                                        >
-                                            Tulis Review
-                                        </button>
+                                <input
+                                    type="hidden"
+                                    name="teacher_profile_id"
+                                    value="{{ $jadwal->teacherProfile->id }}"
+                                >
 
-                                        <div
-                                            id="review-{{ $jadwal->id }}"
-                                            class="hidden mt-2 border border-gray-200 rounded-lg p-3 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-                                        >
-                                            <form action="{{ route('review.store') }}" method="POST">
-                                                @csrf
+                                <div class="mb-2">
+                                    <label class="text-xs text-gray-500">Rating:</label>
+                                    <select
+                                        name="rating"
+                                        required
+                                        class="h-8 rounded-lg border border-gray-300 px-2 text-xs"
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="4">4</option>
+                                        <option value="3">3</option>
+                                        <option value="2">2</option>
+                                        <option value="1">1</option>
+                                    </select>
+                                </div>
 
-                                                <input
-                                                    type="hidden"
-                                                    name="teacher_profile_id"
-                                                    value="{{ $teacherId }}"
-                                                >
+                                <textarea
+                                    name="ulasan"
+                                    rows="2"
+                                    required
+                                    placeholder="Tulis ulasan pengalaman belajar..."
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs"
+                                ></textarea>
 
-                                                <div class="mb-3">
-                                                    <label class="text-xs text-gray-500 dark:text-gray-400">
-                                                        Rating
-                                                    </label>
-
-                                                    <select
-                                                        name="rating"
-                                                        required
-                                                        class="mt-1 h-9 rounded-lg border border-gray-300 px-3 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    >
-                                                        <option value="5">5</option>
-                                                        <option value="4">4</option>
-                                                        <option value="3">3</option>
-                                                        <option value="2">2</option>
-                                                        <option value="1">1</option>
-                                                    </select>
-                                                </div>
-
-                                                <div>
-                                                    <textarea
-                                                        name="ulasan"
-                                                        rows="3"
-                                                        required
-                                                        placeholder="Tulis pengalaman belajar dengan guru ini..."
-                                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    ></textarea>
-                                                </div>
-
-                                                <button
-                                                    type="submit"
-                                                    class="mt-3 text-sm bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2 text-white"
-                                                >
-                                                    Kirim Review
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @endif
-
+                                <button
+                                    type="submit"
+                                    class="mt-2 text-xs bg-brand-500 hover:bg-brand-600 rounded-lg px-3 py-1.5 text-white"
+                                >
+                                    Kirim Review
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                                 </div>
                             </td>
                         </tr>
-
                     @empty
                         <tr>
-                            <td
-                                colspan="7"
-                                class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
-                            >
-                                Belum ada jadwal.
-                            </td>
+                            <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada jadwal.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -251,18 +141,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    function toggleReview(id) {
-        const form = document.getElementById('review-' + id);
-
-        if (form.classList.contains('hidden')) {
-            form.classList.remove('hidden');
-        } else {
-            form.classList.add('hidden');
-        }
-    }
-</script>
-
 @endsection
-```
