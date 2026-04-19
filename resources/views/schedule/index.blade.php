@@ -68,7 +68,29 @@
                                     @elseif($jadwal->payment_status === 'unpaid' && ($jadwal->status === 'pending' || $jadwal->status === 'confirmed'))
                                         <a href="{{ route('payment.pay', $jadwal->id) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors bg-brand-50 px-3 py-1 rounded-md">Bayar</a>
                                     @endif
-
+----------------------------------------------
+                                      {{-- Form Tulis review (hidden by default) --}}
+                        @if($punyaJadwalSelesai && !$sudahReview)
+                            <div id="review-{{ $teacher->id }}" class="hidden mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                                <form action="{{ route('review.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="teacher_profile_id" value="{{ $teacher->id }}">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <label class="text-xs text-gray-500 dark:text-gray-400">Rating:</label>
+                                        <select name="rating" required class="h-8 rounded-lg border border-gray-300 px-2 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                            <option value="5">5</option>
+                                            <option value="4">4</option>
+                                            <option value="3">3</option>
+                                            <option value="2">2</option>
+                                            <option value="1">1</option>
+                                        </select>
+                                    </div>
+                                    <textarea name="ulasan" rows="2" placeholder="Tulis ulasan pengalaman belajar di sini..." required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white"></textarea>
+                                    <button type="submit" class="mt-2 text-xs bg-brand-500 hover:bg-brand-600 rounded-lg px-3 py-1.5 text-white">Kirim Review</button>
+                                </form>
+                            </div>
+                        @endif
+--------------------------------------
                                     @if($jadwal->status === 'pending' || $jadwal->status === 'confirmed')
                                         <form action="{{ route('jadwal.cancel', $jadwal->id) }}" method="POST">
                                             @csrf
