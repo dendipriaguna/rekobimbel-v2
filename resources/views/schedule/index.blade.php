@@ -86,7 +86,10 @@
                             Tulis Review
                         </button>
 
-                        <div id="review-{{ $jadwal->id }}" class="hidden mt-3 border rounded-lg p-3 bg-gray-50">
+                        <div
+                            id="review-{{ $jadwal->id }}"
+                            class="hidden mt-4 w-[420px] rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                        >
                             <form action="{{ route('review.store') }}" method="POST">
                                 @csrf
 
@@ -100,6 +103,7 @@
                                     <label class="text-xs text-gray-500">Rating:</label>
                                     <select
                                         name="rating"
+                                        class="mt-2 h-10 w-full rounded-lg border border-gray-300 px-3 text-sm"
                                         required
                                         class="h-8 rounded-lg border border-gray-300 px-2 text-xs"
                                     >
@@ -113,10 +117,10 @@
 
                                 <textarea
                                     name="ulasan"
-                                    rows="2"
+                                    rows="5"
                                     required
                                     placeholder="Tulis ulasan pengalaman belajar..."
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
                                 ></textarea>
 
                                 <button
