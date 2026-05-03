@@ -42,7 +42,7 @@ class ScheduleController extends Controller
             'payment_status' => 'unpaid',
         ]);
 
-        return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dibuat, menunggu konfirmasi guru.');
+        return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dibuat! Menunggu konfirmasi guru. Setelah guru mengkonfirmasi, kode pembayaran akan muncul.');
     }
 
     // Daftar jadwal siswa
@@ -97,13 +97,19 @@ class ScheduleController extends Controller
         return view('schedule.guru', compact('schedules'));
     }
 
-    // Guru konfirmasi jadwal
+    // Guru konfirmasi jadwal (approve booking, lanjut ke pembayaran siswa)
     public function confirm($id)
     {
         $schedule = Schedule::findOrFail($id);
-        $schedule->update(['status' => 'confirmed']);
 
-        return back()->with('success', 'Jadwal dikonfirmasi.');
+        // Hanya bisa confirm kalau status masih pending
+        if ($schedule->status !== 'pending') {
+            return back()->with('error', 'Jadwal ini tidak bisa dikonfirmasi (status: ' . $schedule->status . ').');
+        }
+
+        $schedule->update(['status' => 'waiting_payment']);
+
+        return back()->with('success', 'Booking dikonfirmasi! Menunggu siswa melakukan pembayaran.');
     }
 
     // Guru atau siswa batalkan jadwal
