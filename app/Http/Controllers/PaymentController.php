@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use App\Services\FonnteService;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Notification;
@@ -146,6 +147,36 @@ class PaymentController extends Controller
 
         $schedule->save();
 
+        // Kirim WA ke guru jika pembayaran berhasil
+        if ($schedule->payment_status === 'paid') {
+            $this->notifyGuruPaymentSuccess($schedule);
+        }
+
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Kirim notifikasi WA ke guru bahwa siswa sudah bayar.
+     */
+    private function notifyGuruPaymentSuccess(Schedule $schedule): void
+    {
+        try {
+            $schedule->loadMissing(['user', 'teacherProfile.user']);
+            $guru = $schedule->teacherProfile->user ?? null;
+            $siswa = $schedule->user ?? null;
+
+            if ($guru && $guru->phone && $siswa) {
+                $message = "Halo Kak {$guru->name}! 💰\n\n"
+                    . "Siswa *{$siswa->name}* sudah melakukan pembayaran untuk jadwal bimbel berikut:\n"
+                    . "📅 Tanggal: {$schedule->tanggal}\n"
+                    . "🕐 Jam: {$schedule->jam_mulai} - {$schedule->jam_selesai}\n"
+                    . "💰 Total: Rp " . number_format($schedule->total_price, 0, ',', '.') . "\n\n"
+                    . "Jadwal sudah dikonfirmasi. Selamat mengajar! 📚\n\n"
+                    . "- RekoBimbel";
+                app(FonnteService::class)->send($guru->phone, $message);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim WA ke guru: ' . $e->getMessage());
+        }
     }
 }
