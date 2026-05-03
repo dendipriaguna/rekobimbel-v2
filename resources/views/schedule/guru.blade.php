@@ -39,8 +39,10 @@
                             <td class="px-5 py-4">
                                 @if($jadwal->status === 'confirmed')
                                     <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">Confirmed</span>
+                                @elseif($jadwal->status === 'waiting_payment')
+                                    <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Menunggu Pembayaran Siswa</span>
                                 @elseif($jadwal->status === 'pending')
-                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">Pending</span>
+                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">Menunggu Konfirmasi</span>
                                 @elseif($jadwal->status === 'selesai')
                                     <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Selesai</span>
                                 @else
@@ -58,6 +60,8 @@
                                             @csrf
                                             <button type="submit" class="text-sm text-red-500 hover:underline">Tolak</button>
                                         </form>
+                                    @elseif($jadwal->status === 'waiting_payment')
+                                        <span class="text-sm text-amber-600 dark:text-amber-400 italic">Menunggu pembayaran siswa...</span>
                                     @elseif($jadwal->status === 'confirmed')
                                         <form action="{{ route('jadwal.complete', $jadwal->id) }}" method="POST">
                                             @csrf
