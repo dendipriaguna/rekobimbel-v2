@@ -44,8 +44,10 @@
                             <td class="px-5 py-4">
                                 @if($jadwal->status === 'confirmed')
                                     <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">Confirmed</span>
+                                @elseif($jadwal->status === 'waiting_payment')
+                                    <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Menunggu Pembayaran</span>
                                 @elseif($jadwal->status === 'pending')
-                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">Pending</span>
+                                    <span class="inline-flex rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">Menunggu Konfirmasi Guru</span>
                                 @elseif($jadwal->status === 'selesai')
                                     <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Selesai</span>
                                 @else
@@ -65,11 +67,13 @@
                                 <div class="flex gap-3 items-center">
                                     @if($jadwal->payment_status === 'paid')
                                         <a href="{{ route('schedule.invoice', $jadwal->id) }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1 rounded-md">Cetak Bukti Pembayaran</a>
-                                    @elseif($jadwal->payment_status === 'unpaid' && ($jadwal->status === 'pending' || $jadwal->status === 'confirmed'))
-                                        <a href="{{ route('payment.pay', $jadwal->id) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors bg-brand-50 px-3 py-1 rounded-md">Bayar</a>
+                                    @elseif($jadwal->status === 'waiting_payment' && $jadwal->payment_status === 'unpaid')
+                                        <a href="{{ route('payment.pay', $jadwal->id) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors bg-brand-50 px-3 py-1 rounded-md">Bayar Sekarang</a>
+                                    @elseif($jadwal->status === 'pending')
+                                        <span class="text-sm text-gray-400 italic">Menunggu konfirmasi guru...</span>
                                     @endif
 
-                                  @if($jadwal->status === 'pending' || $jadwal->status === 'confirmed')
+                                  @if(in_array($jadwal->status, ['pending', 'waiting_payment', 'confirmed']))
                         <form action="{{ route('jadwal.cancel', $jadwal->id) }}" method="POST">
                             @csrf
                             <button type="submit" class="text-sm text-red-500 hover:underline">
