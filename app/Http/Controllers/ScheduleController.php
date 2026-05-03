@@ -65,6 +65,25 @@ class ScheduleController extends Controller
                             'payment_status' => 'paid',
                             'status' => 'confirmed'
                         ]);
+
+                        // Kirim WA ke guru bahwa siswa sudah bayar
+                        try {
+                            $schedule->loadMissing(['user', 'teacherProfile.user']);
+                            $guru = $schedule->teacherProfile->user ?? null;
+                            $siswa = $schedule->user ?? null;
+                            if ($guru && $guru->phone && $siswa) {
+                                $message = "Halo Kak {$guru->name}! 💰\n\n"
+                                    . "Siswa *{$siswa->name}* sudah melakukan pembayaran untuk jadwal bimbel berikut:\n"
+                                    . "📅 Tanggal: {$schedule->tanggal}\n"
+                                    . "🕐 Jam: {$schedule->jam_mulai} - {$schedule->jam_selesai}\n"
+                                    . "💰 Total: Rp " . number_format($schedule->total_price, 0, ',', '.') . "\n\n"
+                                    . "Jadwal sudah dikonfirmasi. Selamat mengajar! 📚\n\n"
+                                    . "- RekoBimbel";
+                                app(\App\Services\FonnteService::class)->send($guru->phone, $message);
+                            }
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::warning('Gagal kirim WA ke guru (fallback): ' . $e->getMessage());
+                        }
                     }
                 }
             } catch (\Exception $e) {
@@ -108,6 +127,24 @@ class ScheduleController extends Controller
         }
 
         $schedule->update(['status' => 'waiting_payment']);
+
+        // Kirim notifikasi WA ke siswa bahwa guru sudah confirm
+        try {
+            $siswa = $schedule->user;
+            $guru = $schedule->teacherProfile->user;
+            if ($siswa && $siswa->phone) {
+                $message = "Halo {$siswa->name}! 🎉\n\n"
+                    . "Guru *{$guru->name}* sudah mengkonfirmasi booking kamu.\n"
+                    . "📅 Tanggal: {$schedule->tanggal}\n"
+                    . "🕐 Jam: {$schedule->jam_mulai} - {$schedule->jam_selesai}\n"
+                    . "💰 Total: Rp " . number_format($schedule->total_price, 0, ',', '.') . "\n\n"
+                    . "Silakan lakukan pembayaran di halaman Jadwal Belajar kamu ya!\n\n"
+                    . "- RekoBimbel";
+                app(\App\Services\FonnteService::class)->send($siswa->phone, $message);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim WA ke siswa: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Booking dikonfirmasi! Menunggu siswa melakukan pembayaran.');
     }
