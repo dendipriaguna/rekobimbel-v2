@@ -28,6 +28,11 @@ class PaymentController extends Controller
             return redirect()->route('jadwal.index')->with('success', 'Jadwal ini sudah lunas dibayar.');
         }
 
+        // Hanya bisa bayar kalau guru sudah confirm (status: waiting_payment)
+        if ($schedule->status !== 'waiting_payment') {
+            return redirect()->route('jadwal.index')->with('error', 'Menunggu konfirmasi guru terlebih dahulu sebelum bisa melakukan pembayaran.');
+        }
+
         // If not yet has snap token, generate it
         if (!$schedule->snap_token) {
             $params = [
